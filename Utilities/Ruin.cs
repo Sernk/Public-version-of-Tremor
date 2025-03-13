@@ -8,7 +8,8 @@ using Terraria.WorldBuilding;
 using TremorMod.Content.Biomes.Ice;
 using TremorMod.Content.Biomes.Ice.Items.Furniture;
 using TremorMod.Content.Biomes.Ruins.Tiles;
-using StructureHelper;
+using StructureHelper.API;
+using static StructureHelper.API.Generator;
 
 namespace TremorMod.Utilities
 {
@@ -34,15 +35,13 @@ namespace TremorMod.Utilities
         {
             int worldWidth = Main.maxTilesX;
             int worldHeight = Main.maxTilesY;
-            int ruinX = worldWidth / 2; // ����� ���� �� X
-            int ruinY = worldHeight - 500; // 500 ������ �� ������ �������
+            int ruinX = worldWidth / 2; // Öåíòð ìèðà ïî X
+            int ruinY = worldHeight - 500; // 500 áëîêîâ îò íèæíåé ãðàíèöû
 
             string structurePath = "Structures/Ruin";
-
-            StructureHelper.Generator.GenerateStructure(structurePath, new Point16(ruinX, ruinY), TremorMod.Instance);
-
-            var dims = new Point16();
-            StructureHelper.Generator.GetDimensions(structurePath, TremorMod.Instance, ref dims);
+            
+            // Генерация структуры с использованием нового API
+            StructureHelper.API.Generator.GenerateStructure(structurePath, new Point16(ruinX, ruinY), TremorMod.Instance);
         }
     }
 }
