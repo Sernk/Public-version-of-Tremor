@@ -32,7 +32,8 @@ using TremorMod.Content.Biomes.Ruins.Items;
 using TremorMod.Content.Biomes.Ice.Items.Furniture;
 using TremorMod.Content.Biomes.Ice.Dungeon;
 using ArgiteBar = TremorMod.Content.Items.Materials.OreAndBar.ArgiteBar;
-using StructureHelper;
+using StructureHelper.API;
+using static StructureHelper.API.Generator;
 
 namespace TremorMod
 {
@@ -356,22 +357,21 @@ namespace TremorMod
             }
         }
 
-        private void CreateDungeon(int startX, int startY, ushort dungeonBlock, ushort dungeonWall, ushort iceChest)
-        {
-            // Найдите файл структуры, который вы хотите использовать для подземелья.
-            // Путь к структуре должен быть правильным, и структура должна быть уже создана в вашем проекте.
-            string structurePath = "Structures/CreateDungeon";
-
-            // Генерация структуры в нужном месте
-            StructureHelper.Generator.GenerateStructure(structurePath, new Point16(startX, startY), TremorMod.Instance);
-
-            // Получение размеров структуры для добавления защиты в мир
-            var dims = new Point16();
-            StructureHelper.Generator.GetDimensions(structurePath, TremorMod.Instance, ref dims);
-
-            // Генерация сундуков внутри подземелья (если необходимо)
-            PlaceDungeonChests(startX, startY, iceChest);
-        }
+         private void CreateDungeon(int startX, int startY, ushort dungeonBlock, ushort dungeonWall, ushort iceChest)
+	 {
+	     // Путь к файлу структуры
+	     string structurePath = "Structures/CreateDungeon";
+	
+	     // Генерация структуры
+	     Generator.GenerateStructure(structurePath, new Point16(startX, startY), TremorMod.Instance);
+	
+	     // Получение размеров структуры
+	     Point16 dims = new Point16();
+	     //Generator.GetDimensions(structurePath, TremorMod.Instance, ref dims);
+	
+	     // Генерация сундуков внутри подземелья (если необходимо)
+	     PlaceDungeonChests(startX, startY, iceChest);
+	 }
 
         private void PlaceDungeonChests(int startX, int startY, ushort iceChest)
         {
