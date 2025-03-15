@@ -274,74 +274,96 @@ namespace TremorMod
             }
         }
 
-        private void GenerateIceBiome(int startX, int startY, int size)
-        {
-            // Генерация ледяного биома
-            for (int x = startX - size; x <= startX + size; x++)
-            {
-                for (int y = startY - size; y <= startY + size; y++)
-                {
-                    if (x > 0 && x < Main.maxTilesX && y > 0 && y < Main.maxTilesY)
-                    {
-                        if (Vector2.Distance(new Vector2(startX, startY), new Vector2(x, y)) <= size)
-                        {
-                            // Меняем стены
-                            if (Main.tile[x, y].WallType == WallID.SnowWallUnsafe)
-                            {
-                                Main.tile[x, y].WallType = (ushort)Mod.Find<ModWall>("IceWall").Type;
-                            }
-
-                            // Меняем блоки
-                            if (Main.tile[x, y].TileType == TileID.SnowBlock)
-                            {
-                                Main.tile[x, y].TileType = (ushort)Mod.Find<ModTile>("IceBlock").Type;
-                            }
-                            else if (Main.tile[x, y].TileType == TileID.Stone)
-                            {
-                                Main.tile[x, y].TileType = (ushort)Mod.Find<ModTile>("IceOre").Type;
-                            }
-
-                            // Обновляем тайлы
-                            WorldGen.SquareTileFrame(x, y);
-                        }
-                    }
-                }
-            }
-
-            // Генерация ледяных руд
-            for (int k = 0; k < 1000; k++)
-            {
-                int positionX = WorldGen.genRand.Next(0, Main.maxTilesX);
-                int positionY = WorldGen.genRand.Next(0, Main.maxTilesY);
-                if (Main.tile[positionX, positionY].TileType == Mod.Find<ModTile>("IceBlock").Type)
-                {
-                    WorldGen.TileRunner(positionX, positionY, WorldGen.genRand.Next(2, 8), WorldGen.genRand.Next(2, 8), (ushort)Mod.Find<ModTile>("IceOre").Type, false, 0f, 0f, false, true);
-                }
-            }
-
-            // Генерация очень ледяных блоков на краях
-            for (int k = 0; k < Main.maxTilesX; k++)
-            {
-                for (int i = 0; i < Main.maxTilesY; i++)
-                {
-                    if (Main.tile[k, i].TileType == Mod.Find<ModTile>("IceBlock").Type)
-                    {
-                        if (!(Main.tile[k + 1, i].HasTile && Main.tile[k, i - 1].HasTile && Main.tile[k - 1, i].HasTile && Main.tile[k, i + 1].HasTile))
-                        {
-                            Main.tile[k, i].TileType = (ushort)Mod.Find<ModTile>("VeryVeryIce").Type;
-                        }
-                    }
-                }
-            }
-
-            // Генерация данжа в центре ледяного биома
-            CreateDungeon(startX, startY, Mod.Find<ModTile>("DungeonBlock").Type, Mod.Find<ModWall>("DungeonWall").Type, Mod.Find<ModTile>("IceChest").Type);
-
-            // Генерация дополнительных структур
-            CreateDungeon(startX - 42, startY - 21, Mod.Find<ModTile>("DungeonBlock").Type, Mod.Find<ModWall>("DungeonWall").Type, Mod.Find<ModTile>("IceChest").Type);
-            CreateDungeon(startX - 120, startY + 50, Mod.Find<ModTile>("DungeonBlock").Type, Mod.Find<ModWall>("DungeonWall").Type, Mod.Find<ModTile>("IceChest").Type);
-
-        }
+	private void GenerateIceBiome(int startX, int startY, int size)
+	{
+	    if (startY > Main.worldSurface)
+	        return;
+	
+	    for (int x = startX - size; x <= startX + size; x++)
+	    {
+	        for (int y = startY - size; y <= startY + size; y++)
+	        {
+	            if (x > 0 && x < Main.maxTilesX - 1 && y > 0 && y < Main.maxTilesY - 1)
+	            {
+	                if (Vector2.Distance(new Vector2(startX, startY), new Vector2(x, y)) <= size)
+	                {
+	                    if (Main.tile[x, y].WallType == WallID.SnowWallUnsafe || Main.tile[x, y].WallType == WallID.SnowWallUnsafe)
+	                        Main.tile[x, y].WallType = (ushort)Mod.Find<ModWall>("IceWall").Type;
+	
+	                    if (Main.tile[x, y].TileType == TileID.SnowBlock)
+	                        Main.tile[x, y].TileType = (ushort)Mod.Find<ModTile>("IceBlock").Type;
+	                    else if (Main.tile[x, y].TileType == TileID.Stone && startY <= Main.worldSurface)
+	                        Main.tile[x, y].TileType = (ushort)Mod.Find<ModTile>("IceOre").Type;
+	
+	                    WorldGen.SquareTileFrame(x, y);
+	                }
+	            }
+	        }
+	    }
+	
+	    if (startY <= Main.worldSurface)
+	    {
+	        for (int k = 0; k < 500; k++)
+	        {
+	            int positionX = WorldGen.genRand.Next(startX - size, startX + size);
+	            int positionY = WorldGen.genRand.Next(startY - size, startY + size);
+	
+	            if (positionX > 0 && positionX < Main.maxTilesX && positionY > 0 && positionY < Main.maxTilesY)
+	            {
+	                if (Main.tile[positionX, positionY].TileType == Mod.Find<ModTile>("IceBlock").Type)
+	                {
+	                    WorldGen.TileRunner(
+	                        positionX, positionY,
+	                        WorldGen.genRand.Next(2, 6),
+	                        WorldGen.genRand.Next(2, 6),
+	                        (ushort)Mod.Find<ModTile>("IceOre").Type,
+	                        false, 0f, 0f, false, true);
+	                }
+	            }
+	        }
+	    }
+	
+	    for (int x = startX - size; x <= startX + size; x++)
+	    {
+	        for (int y = startY - size; y <= startY + size; y++)
+	        {
+	            if (x > 1 && x < Main.maxTilesX - 1 && y > 1 && y < Main.maxTilesY - 1)
+	            {
+	                if (Main.tile[x, y].TileType == Mod.Find<ModTile>("IceBlock").Type)
+	                {
+	                    bool hasAdjacentTiles =
+	                        Main.tile[x + 1, y].HasTile &&
+	                        Main.tile[x - 1, y].HasTile &&
+	                        Main.tile[x, y + 1].HasTile &&
+	                        Main.tile[x, y - 1].HasTile;
+	
+	                    if (!hasAdjacentTiles)
+	                    {
+	                        Main.tile[x, y].TileType = (ushort)Mod.Find<ModTile>("VeryVeryIce").Type;
+	                    }
+	                }
+	            }
+	        }
+	    }
+	
+	    if (startY <= Main.worldSurface)
+	    {
+	        CreateDungeon(startX, startY,
+	            Mod.Find<ModTile>("DungeonBlock").Type,
+	            Mod.Find<ModWall>("DungeonWall").Type,
+	            Mod.Find<ModTile>("IceChest").Type);
+	
+	        CreateDungeon(startX - 42, startY - 21,
+	            Mod.Find<ModTile>("DungeonBlock").Type,
+	            Mod.Find<ModWall>("DungeonWall").Type,
+	            Mod.Find<ModTile>("IceChest").Type);
+	
+	        CreateDungeon(startX - 120, startY + 50,
+	            Mod.Find<ModTile>("DungeonBlock").Type,
+	            Mod.Find<ModWall>("DungeonWall").Type,
+	            Mod.Find<ModTile>("IceChest").Type);
+	    }
+	}
 
         // Этот класс будет представлять предметы в сундуке.
         public class ChestItem
